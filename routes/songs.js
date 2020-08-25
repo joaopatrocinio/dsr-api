@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const database = require("../database.js")
+const ObjectId = require('mongodb').ObjectId; 
 const moment = require("moment")
 const https = require('https')
 
@@ -51,11 +52,11 @@ function addSong(req, res) {
 						resp.on('end', () => {
 							var search = JSON.parse(data);
 							songs.insertOne({
-								artist: search.response.song.album.artist.name,
+								artist: search.response.song.primary_artist.name,
 								title: search.response.song.title_with_featured,
 								user: req.user._id,
 								datetime: new Date(Date.now()).toISOString(),
-								image: search.response.song.album.cover_art_url
+								image: search.response.song.algum ? search.response.song.album.cover_art_url : search.response.song.song_art_image_url
 							}, (err, result) => {
 								if (err) throw err;
 								res.json({
@@ -99,8 +100,27 @@ function getUserQueue(req, res) {
 	})
 }
 
+function rateSong(req, res) {
+	const db = database.getDb()
+	const songs = db.collection("songs")
+	songs.updateOne({
+		_id: new ObjectId(req.body.song_id)
+	}, {
+		$push: {
+			scores: {
+				user: new ObjectId(req.user._id),
+				score: req.body.score
+			}
+		}
+	}, (err, result) => {
+		if (err) throw err;
+		return res.json({ message: "Rate sent successfully" })
+	})
+}
+
 router.post('/add', require('../authentication/check-login'), addSong);
 router.get('/all', getAllSongs);
 router.get("/queue", require('../authentication/check-login'), getUserQueue);
+router.post("/rate", require('../authentication/check-login'), rateSong);
 
 module.exports = router;
