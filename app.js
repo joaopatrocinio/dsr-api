@@ -22,7 +22,7 @@ const passportMongo = require('./authentication/passport-mongo');
 const authenticationRoutes = require('./authentication/routes');
 
 var options = {
-    url: 'mongodb://localhost/dsr'
+    url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_POST}/${process.env.DB_NAME}`
 };
 
 const store = new MongoStore(options)

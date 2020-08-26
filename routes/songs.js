@@ -93,6 +93,9 @@ function getUserQueue(req, res) {
 	songs.find({
 		"user": {
 			"$ne": req.user._id
+		},
+		"scores.user": {
+			"$ne": req.user._id
 		}
 	}).toArray((err, result) => {
 		if (err) throw err;
@@ -114,7 +117,7 @@ function rateSong(req, res) {
 		}
 	}, (err, result) => {
 		if (err) throw err;
-		return res.json({ message: "Rate sent successfully" })
+		return res.json({ message: "Rated successfully" })
 	})
 }
 
