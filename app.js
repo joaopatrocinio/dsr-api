@@ -11,7 +11,7 @@ const database = require("./database.js")
 
 require('dotenv').config()
 
-app.use(cors({ origin: 'http://localhost:8080', credentials: true }));
+app.use(cors({ origin: process.env.APP_URL, credentials: true }));
 app.use(express.static('www'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,9 +21,16 @@ const port = process.env.PORT
 const passportMongo = require('./authentication/passport-mongo');
 const authenticationRoutes = require('./authentication/routes');
 
-var options = {
-    url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_POST}/${process.env.DB_NAME}`
-};
+if (process.env.DB_PASS) {
+    var options = {
+        url: `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_POST}/${process.env.DB_NAME}`
+    };
+} else {
+    var options = {
+        url: `mongodb://${process.env.DB_HOST}:${process.env.DB_POST}/${process.env.DB_NAME}`
+    };
+}
+
 
 const store = new MongoStore(options)
 
